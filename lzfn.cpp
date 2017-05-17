@@ -133,7 +133,7 @@ char *alirezaLZ(const char *data, int ss,int &ksize) {
         for(int i = 0 ; i < ss; i++) {
            // cout << "i = " << i << " c : " << data[i] << " score : " << ms[i].score << " dis : " << ms[i].distance << " len : " << ms[i].len << endl;
         }
-        char *output = new char[(int)(ss*1.4)];
+        char *output = new char[(int)(ss*10.1)];
         int k = 0;
         for(int i = 0 ; i < ss;) {
            // cout << "i = " << i << " k = " << k << endl;
