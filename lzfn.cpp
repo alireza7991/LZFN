@@ -20,7 +20,7 @@ void buildHCodes(struct Node* root, string str) {
     if (!root)
         return;
     if (root->data != '$') {
-        cout << root->data << ": " << str << "\n";
+       // cout << root->data << ": " << str << "\n";
         hcodes[root->data]=str;
     }
     buildHCodes(root->left, str + "0");
@@ -55,8 +55,8 @@ void buildFreqTable(int *freqTable,string input) {
 
 string huffmanEncode(string input) {
     string out;
-    for(auto c : input) {
-        out += hcodes[c];
+    for(int i = 0 ; i < input.size(); i++) {
+        out += hcodes[(unsigned char)input[i]];
     }
     return out;
 }
@@ -64,15 +64,15 @@ string huffmanEncode(string input) {
 
 
 
-void alirezaLZ() {
-        string input = "abcde_bcdefgh_abcdefgh";
-        const char *data = input.c_str();
-        int ss = input.size();
+char *alirezaLZ(const char *data, int ss,int &ksize) {
+        //string input = "abcde_bcdefgh_abcdefgh";
+       // const char *data = input.c_str();
+        //int ss = input.size();
         struct match {
             int distance,len,score;
         };
-        vector<match> ms(input.size());
-        for(int i = 0 ; i < input.size(); i++) {
+        vector<match> ms(ss);
+        for(int i = 0 ; i < ss; i++) {
             int k = 0;
             int matchLen = 0;
             vector<match> matches;
@@ -104,9 +104,9 @@ void alirezaLZ() {
             }
             ms[i] = best;
             if(bestDis != -1) {
-                cout << "i = " << i << " found match dis : " << bestDis << " len : " << bestLen << " Score : " <<  bestScore << endl;
+               // cout << "i = " << i << " found match dis : " << bestDis << " len : " << bestLen << " Score : " <<  bestScore << endl;
             } else {
-                cout << "i = " << i << " NO MATCH" << endl;
+               // cout << "i = " << i << " NO MATCH" << endl;
             }
         }
         for(int i = ss-1 ; i >= 0;i--) {
@@ -116,7 +116,7 @@ void alirezaLZ() {
                     if(ms[i].score < ms[j].score) betterMatch=false;
                 }
                 if(betterMatch) {
-                    cout << " i :" << i << " is better match" << endl;
+                    //cout << " i :" << i << " is better match" << endl;
                     for(int j = i+1; j < (i+ms[i].len); j++){
                         ms[j].score = ms[i].score;
                         ms[j].len = -2;
@@ -131,18 +131,18 @@ void alirezaLZ() {
             }
         }
         for(int i = 0 ; i < ss; i++) {
-            cout << "i = " << i << " c : " << data[i] << " score : " << ms[i].score << " dis : " << ms[i].distance << " len : " << ms[i].len << endl;
+           // cout << "i = " << i << " c : " << data[i] << " score : " << ms[i].score << " dis : " << ms[i].distance << " len : " << ms[i].len << endl;
         }
         char *output = new char[(int)(ss*1.4)];
         int k = 0;
         for(int i = 0 ; i < ss;) {
-            cout << "i = " << i << " k = " << k << endl;
+           // cout << "i = " << i << " k = " << k << endl;
             if(i==10){
                 int yyyyy =9;
             }
             if (ms[i].distance > 0) {
 
-                cout << "i = " << i << " match " << endl;
+              //  cout << "i = " << i << " match " << endl;
                 // a match
                 int mlen = ms[i].len, mdis = ms[i].distance;
                 // encode len
@@ -165,7 +165,7 @@ void alirezaLZ() {
                 }
                 i+=mlen;
             } else {
-                cout << "i = " << i << " literal " << endl;
+                //cout << "i = " << i << " literal " << endl;
                 //  a literal
                 int litLen = 0;
                 for (int j = i; ms[j].distance < 0; j++) {
@@ -190,20 +190,29 @@ void alirezaLZ() {
                 }
             }
         }
-        cout << "Base size : " << ss << " - Encoded : " << k << endl;
+        cout << "Step 1 => Base size : " << ss << " - Compressed : " << k << endl;
+    ksize = k;
+    return output;
 }
 
 int main() {
     int freq[256];
-    alirezaLZ();
-    return 0;
-    string input;
-    cin >> input;
-    buildFreqTable(freq,input);
+    ///string in;
+    //getline(cin,in);
+    std::ifstream ifs("test.txt");
+    std::string in( (std::istreambuf_iterator<char>(ifs) ),
+                         (std::istreambuf_iterator<char>()    ) );
+    int ks;
+    char *s = alirezaLZ(in.c_str(),in.length(),ks);
+    //return 0;
+    //string input;
+   // cin >> input;
+    string hh(s,ks);
+    buildFreqTable(freq,hh);
     generateHCodes(freq);
+    string out = huffmanEncode(hh);
+   // cout << "Encoded: " << out << endl;
 
-    string out = huffmanEncode(input);
-    cout << "Encoded: " << out << endl;
-    cout << "Len: " << out.length() << endl;
-    cout << "Original Len " << input.length()*8;
+    cout << "Step 2 => Base size :  " << hh.length();
+    cout << " - Compressed : " << out.length()/8 << endl;
 }
