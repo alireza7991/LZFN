@@ -135,24 +135,62 @@ void alirezaLZ() {
         }
         char *output = new char[(int)(ss*1.4)];
         int k = 0;
-        for(int i = 0 ; i < ss; i++) {
-            if(ms[i].distance > 0) {
+        for(int i = 0 ; i < ss;) {
+            cout << "i = " << i << " k = " << k << endl;
+            if(i==10){
+                int yyyyy =9;
+            }
+            if (ms[i].distance > 0) {
+
+                cout << "i = " << i << " match " << endl;
                 // a match
                 int mlen = ms[i].len, mdis = ms[i].distance;
-                output[k] = -1 * (mlen%128);
-                if(mlen >= 128) {
+                // encode len
+                output[k] = -1 * (mlen % 128);
+                k++;
+                if (mlen >= 128) {
                     mlen -= 127;
-                    while(mlen > 0) {
-                        char 
+
+                    while (mlen > 0) {
+                        output[k] = mlen % 256;
+                        mlen -= 256;
+                        k++;
+                    }
+                }
+                // encode offset
+                while (mdis > 0) {
+                    output[k] = mdis % 256;
+                    mdis -= 256;
+                    k++;
+                }
+                i+=mlen;
+            } else {
+                cout << "i = " << i << " literal " << endl;
+                //  a literal
+                int litLen = 0;
+                for (int j = i; ms[j].distance < 0; j++) {
+                    litLen++;
+                }
+                // encode len
+                output[k] = -1 * (litLen % 128);
+                k++;
+                if (litLen >= 128) {
+                    litLen -= 127;
+                    while (litLen > 0) {
+                        output[k] = litLen % 256;
+                        litLen -= 256;
+                        k++;
                     }
                 }
 
-            } else {
-                //  a literal
-
+                for (int j = 0; j < litLen; j++) {
+                    output[k] = data[i];
+                    i++;
+                    k++;
+                }
             }
         }
-
+        cout << "Base size : " << ss << " - Encoded : " << k << endl;
 }
 
 int main() {
